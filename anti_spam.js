@@ -1,6 +1,6 @@
 const authors = [];
 var warned = [];
-var banned = [];
+var mute = [];
 var messagelog = [];
 
 /**
@@ -15,10 +15,10 @@ module.exports = function (bot, options) {
   const maxBuffer = (options && options.maxBuffer) || 5;
   const interval = (options && options.interval) || 1000;
   const warningMessage = (options && options.warningMessage) || "stop spamming or I'll whack your head off.";
-  const banMessage = (options && options.banMessage) || "has been banned for spamming, anyone else?";
+  const muteMessage = (options && options.muteMessage) || "has been mute for spamming, anyone else?";
   const maxDuplicatesWarning = (options && options. maxDuplicatesWarning || 7);
-  const maxDuplicatesBan = (options && options. maxDuplicatesBan || 10);
-  const deleteMessagesAfterBanForPastDays = (options && options.deleteMessagesAfterBanForPastDays || 7);
+  const maxDuplicatesMute = (options && options. maxDuplicatesMute || 10);
+  const deleteMessagesAfterMuteforPastDays = (options && options.deleteMessagesAfterMuteForPastDays || 7);
   const exemptRoles = (options && options.exemptRoles) || []
   const exemptUsers = (options && options.exemptUsers) || []
 
@@ -53,8 +53,8 @@ module.exports = function (bot, options) {
       if (msgMatch == maxDuplicatesWarning && !warned.includes(msg.author.id)) {
         warn(msg, msg.author.id);
       }
-      if (msgMatch == maxDuplicatesBan && !banned.includes(msg.author.id)) {
-        ban(msg, msg.author.id);
+      if (msgMatch == maxDuplicatesmute && !mute.includes(msg.author.id)) {
+        mute(msg, msg.author.id);
       }
 
       var matched = 0;
@@ -66,15 +66,15 @@ module.exports = function (bot, options) {
             warn(msg, msg.author.id);
           }
           else if (matched == maxBuffer) {
-            if (!banned.includes(msg.author.id)) {
-              ban(msg, msg.author.id);
+            if (!mute.includes(msg.author.id)) {
+              mute(msg, msg.author.id);
             }
           }
         }
         else if (authors[i].time < now - interval) {
           authors.splice(i);
           warned.splice(warned.indexOf(authors[i]));
-          banned.splice(warned.indexOf(authors[i]));
+          mute.splice(warned.indexOf(authors[i]));
         }
         if (messagelog.length >= 200) {
           messagelog.shift();
@@ -99,19 +99,19 @@ module.exports = function (bot, options) {
    * @param  {string} userid userid
    * @return {boolean} True or False
    */
-  function ban(msg, userid) {
+  function mute(msg, userid) {
     for (var i = 0; i < messagelog.length; i++) {
       if (messagelog[i].author == msg.author.id) {
         messagelog.splice(i);
       }
     }
 
-    banned.push(msg.author.id);
+   Mute.push(msg.author.id);
 
     var user = msg.channel.guild.members.find(member => member.user.id === msg.author.id);
     if (user) {
-      user.ban(deleteMessagesAfterBanForPastDays).then((member) => {
-        msg.channel.send(msg.author + " " +banMessage);
+      user.Mute(deleteMessagesAfterMuteForPastDays).then((member) => {
+        msg.channel.send(msg.author + " " +muteMessage);
         return true;
      }).catch(() => {
         msg.channel.send("insufficient permission to kick " + msg.author + " for spamming.");
